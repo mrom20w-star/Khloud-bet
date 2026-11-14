@@ -10,8 +10,8 @@ export const PLATFORMS: PlatformConfig[] = [
     latency: '9ms',
     geo: 'سيرفر VIP حصري',
     recommended: true,
-    appDownloadUrl: 'https://refpa83754.com/L?tag=d_6238052m_67005c_&site=6238052&ad=67005',
-    registerUrl: 'https://refpa83754.com/L?tag=d_6238052m_88828c_&site=6238052&ad=88828',
+    appDownloadUrl: 'https://refpa83754.com/L?tag=d_6330483m_67005c_&site=6330483&ad=67005',
+    registerUrl: 'https://bizbet-official.com/ar/registration?type=fast&bonus=SPORT&currency=EGP',
     promoCode: 'LM55',
   },
 ];

@@ -14,6 +14,9 @@ import {
   KeyRound,
   Lock,
   Unlock,
+  UserPlus,
+  Download,
+  ExternalLink,
 } from 'lucide-react';
 import { PlatformConfig, Language } from '../types';
 import { sound } from '../utils/sound';
@@ -142,7 +145,7 @@ export const ActivationFlow: React.FC<ActivationFlowProps> = ({
 
       {/* STEPS CONTAINER */}
       <div className="space-y-4">
-        {/* Step 1: Platform Info (No Download / Create Account buttons as requested previously) */}
+        {/* Step 1: Platform Info + Registration & Download Links */}
         <div className="rounded-2xl border border-amber-500/25 bg-zinc-950/75 p-4.5 backdrop-blur-md shadow-lg space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -163,8 +166,34 @@ export const ActivationFlow: React.FC<ActivationFlowProps> = ({
               <img src={platform.img} alt={platform.name} className="w-full h-full object-contain" />
             </div>
             <p className="text-[11px] text-zinc-400 leading-relaxed">
-              تأكد من تسجيل حسابك في منصة {platform.name} الرسمية لتفعيل المزامنة المباشرة مع سيرفر Khloud bet.
+              قم بالتسجيل أو تحميل تطبيق {platform.name} الرسمي لربط حسابك وتفعيل المزامنة المباشرة مع سيرفر Khloud bet.
             </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <a
+              href={platform.registerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => sound.playClick()}
+              className="h-11 px-3 rounded-xl bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-500 hover:from-amber-500 hover:to-yellow-400 text-black font-black text-xs flex items-center justify-center gap-2 shadow-neon-gold active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
+            >
+              <UserPlus className="w-4 h-4 shrink-0" />
+              <span>لينك التسجيل</span>
+              <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+            </a>
+
+            <a
+              href={platform.appDownloadUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => sound.playClick()}
+              className="h-11 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-amber-500/45 hover:border-amber-400 text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
+            >
+              <Download className="w-4 h-4 shrink-0" />
+              <span>لينك التحميل</span>
+              <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+            </a>
           </div>
         </div>
 
