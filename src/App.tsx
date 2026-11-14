@@ -11,16 +11,11 @@ import { TopUpModal } from './components/modals/TopUpModal';
 import { PLATFORMS } from './data/platforms';
 import { PlatformConfig, ScreenState, GameId, Language } from './types';
 
-const REQUIRED_PASSWORD = 'NEMAR_AXC9';
-
 export default function App() {
   const [lang] = useState<Language>('ar');
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformConfig>(PLATFORMS[0]);
   const [userId, setUserId] = useState<string>(() => {
     return localStorage.getItem('khloud_bet_user_id') || '';
-  });
-  const [isPasswordVerified, setIsPasswordVerified] = useState<boolean>(() => {
-    return localStorage.getItem('khloud_bet_verified_code') === REQUIRED_PASSWORD;
   });
   const [onlineCount, setOnlineCount] = useState(4120);
 
@@ -41,24 +36,21 @@ export default function App() {
   }, []);
 
   const handleProceedFromPlatform = () => {
-    if (userId && isPasswordVerified) {
+    if (userId) {
       setCurrentScreen('games_hub');
     } else {
       setCurrentScreen('activation_flow');
     }
   };
 
-  const handleCompleteActivation = (newUserId: string, verifiedCode: string) => {
-    if (verifiedCode !== REQUIRED_PASSWORD) return;
+  const handleCompleteActivation = (newUserId: string) => {
     setUserId(newUserId);
-    setIsPasswordVerified(true);
     localStorage.setItem('khloud_bet_user_id', newUserId);
-    localStorage.setItem('khloud_bet_verified_code', verifiedCode);
     setCurrentScreen('games_hub');
   };
 
   const handleSelectGame = (gameId: GameId) => {
-    if (!isPasswordVerified) {
+    if (!userId) {
       setCurrentScreen('activation_flow');
       return;
     }
@@ -99,7 +91,7 @@ export default function App() {
           />
         )}
 
-        {currentScreen === 'games_hub' && isPasswordVerified && (
+        {currentScreen === 'games_hub' && (
           <GamesHub
             platform={selectedPlatform}
             userId={userId}
@@ -109,7 +101,7 @@ export default function App() {
           />
         )}
 
-        {currentScreen === 'game_apple' && isPasswordVerified && (
+        {currentScreen === 'game_apple' && (
           <ApplePredictor
             platform={selectedPlatform}
             userId={userId}

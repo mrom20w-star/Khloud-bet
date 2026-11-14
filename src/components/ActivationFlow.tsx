@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   Copy,
   Check,
@@ -11,9 +11,6 @@ import {
   Loader2,
   AlertCircle,
   Smartphone,
-  KeyRound,
-  Lock,
-  Unlock,
   UserPlus,
   Download,
   ExternalLink,
@@ -25,11 +22,9 @@ import { ZikoLogo } from './ZikoLogo';
 interface ActivationFlowProps {
   platform: PlatformConfig;
   onBack: () => void;
-  onComplete: (userId: string, verifiedPassword: string) => void;
+  onComplete: (userId: string) => void;
   lang: Language;
 }
-
-const REQUIRED_PASSWORD = 'NEMAR_AXC9';
 
 export const ActivationFlow: React.FC<ActivationFlowProps> = ({
   platform,
@@ -39,16 +34,11 @@ export const ActivationFlow: React.FC<ActivationFlowProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const [userId, setUserId] = useState('');
-  const [activationCode, setActivationCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyStep, setVerifyStep] = useState<number>(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const codeInputRef = useRef<HTMLInputElement>(null);
-
   const promoCode = platform.promoCode || 'LM55';
-
-  const isPasswordValid = activationCode.trim() === REQUIRED_PASSWORD;
 
   const handleCopyCode = () => {
     sound.playClick();
@@ -57,23 +47,8 @@ export const ActivationFlow: React.FC<ActivationFlowProps> = ({
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const handleLockedIdAttempt = () => {
-    if (!isPasswordValid) {
-      sound.playClick();
-      setErrorMsg('يجب إدخال كود التفعيل الصحيح في خانة "ادخل كود التفعيل" بالأسفل أولاً قبل كتابة الـ ID');
-      codeInputRef.current?.focus();
-    }
-  };
-
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!isPasswordValid) {
-      sound.playClick();
-      setErrorMsg('كود التفعيل غير صحيح! يرجى إدخال كود التفعيل المعتمد أولاً');
-      codeInputRef.current?.focus();
-      return;
-    }
 
     if (!userId.trim()) {
       setErrorMsg('يرجى إدخال معرف الحساب (ID) أولاً');
@@ -103,7 +78,7 @@ export const ActivationFlow: React.FC<ActivationFlowProps> = ({
     setTimeout(() => {
       setIsVerifying(false);
       sound.playSuccess();
-      onComplete(userId.trim(), activationCode.trim());
+      onComplete(userId.trim());
     }, 1250);
   };
 
@@ -290,7 +265,7 @@ export const ActivationFlow: React.FC<ActivationFlowProps> = ({
           </div>
         </div>
 
-        {/* Step 4: ID Verification + "ادخل كود التفعيل" directly underneath */}
+        {/* Step 4: ID Verification only */}
         <div className="rounded-2xl border-2 border-amber-500/50 bg-zinc-950/90 p-4.5 backdrop-blur-md shadow-[0_0_28px_rgba(245,158,11,0.2)] space-y-3.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -298,7 +273,7 @@ export const ActivationFlow: React.FC<ActivationFlowProps> = ({
                 4
               </div>
               <h2 className="text-sm font-black text-white">
-                تأكيد الـ ID وكود التفعيل
+                تأكيد معرف الحساب (ID)
               </h2>
             </div>
             <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
@@ -307,84 +282,30 @@ export const ActivationFlow: React.FC<ActivationFlowProps> = ({
           </div>
 
           <p className="text-[11px] text-zinc-400 leading-relaxed">
-            أدخل كود التفعيل في خانة <strong className="text-amber-400">"ادخل كود التفعيل"</strong> أسفل الـ ID أولاً، ثم اكتب معرف حسابك للدخول إلى السكريبت:
+            اكتب معرف حسابك (ID) في منصة {platform.name} واضغط تفعيل للدخول مباشرة إلى السكريبت:
           </p>
 
           <form onSubmit={handleVerify} className="space-y-3">
-            {/* Field 1: Account ID */}
+            {/* Account ID */}
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-[11px] font-bold text-zinc-300">
-                  معرف الحساب (Account ID)
-                </label>
-                {isPasswordValid ? (
-                  <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
-                    <Unlock className="w-3 h-3" />
-                    مفتوح للكتابة
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-bold text-amber-400 flex items-center gap-1">
-                    <Lock className="w-3 h-3" />
-                    مقفل لحين إدخال كود التفعيل بالأسفل
-                  </span>
-                )}
-              </div>
+              <label className="block text-[11px] font-bold text-zinc-300 mb-1">
+                معرف الحساب (Account ID)
+              </label>
 
-              <div
-                onClick={handleLockedIdAttempt}
-                className="relative"
-              >
+              <div className="relative">
                 <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-zinc-500">
-                  <Fingerprint className={`w-4 h-4 ${isPasswordValid ? 'text-emerald-400' : 'text-amber-500/60'}`} />
+                  <Fingerprint className="w-4 h-4 text-amber-400" />
                 </div>
                 <input
                   type="text"
                   value={userId}
                   onChange={(e) => {
-                    if (!isPasswordValid) return;
                     setUserId(e.target.value.replace(/[^0-9]/g, ''));
                     if (errorMsg) setErrorMsg(null);
                   }}
-                  readOnly={!isPasswordValid}
                   disabled={isVerifying}
-                  placeholder={
-                    isPasswordValid
-                      ? 'اكتب معرف حسابك الآن (مثال: 74829105)'
-                      : 'أدخل كود التفعيل بالأسفل أولاً لفتح الـ ID...'
-                  }
-                  className={`w-full h-12 rounded-xl ps-10 pe-4 font-mono-cyber tracking-wider text-sm transition-all outline-none ${
-                    isPasswordValid
-                      ? 'bg-zinc-900 border border-emerald-600/60 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-white'
-                      : 'bg-zinc-950/90 border border-amber-500/30 text-zinc-500 cursor-not-allowed placeholder:text-zinc-600 placeholder:text-xs'
-                  }`}
-                />
-              </div>
-            </div>
-
-            {/* Field 2: Activation Code directly under ID */}
-            <div>
-              <label className="block text-[11px] font-bold text-amber-300 mb-1">
-                ادخل كود التفعيل
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-zinc-500">
-                  <KeyRound className={`w-4 h-4 ${isPasswordValid ? 'text-emerald-400' : 'text-amber-400'}`} />
-                </div>
-                <input
-                  ref={codeInputRef}
-                  type="text"
-                  value={activationCode}
-                  onChange={(e) => {
-                    setActivationCode(e.target.value);
-                    if (errorMsg) setErrorMsg(null);
-                  }}
-                  disabled={isVerifying}
-                  placeholder="ادخل كود التفعيل"
-                  className={`w-full h-12 bg-zinc-900 rounded-xl ps-10 pe-4 text-white font-mono-cyber tracking-widest text-sm transition-all outline-none placeholder:text-zinc-500 ${
-                    isPasswordValid
-                      ? 'border-2 border-emerald-500/70 focus:border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
-                      : 'border border-amber-500/40 focus:border-amber-400 focus:ring-1 focus:ring-amber-500'
-                  }`}
+                  placeholder="اكتب معرف حسابك هنا (مثال: 74829105)"
+                  className="w-full h-12 bg-zinc-900 border border-amber-500/40 focus:border-amber-400 focus:ring-1 focus:ring-amber-500 rounded-xl ps-10 pe-4 text-white font-mono-cyber tracking-wider text-sm transition-all outline-none placeholder:text-zinc-500 placeholder:text-xs"
                 />
               </div>
             </div>
@@ -414,7 +335,7 @@ export const ActivationFlow: React.FC<ActivationFlowProps> = ({
                 <div className="flex items-center gap-2 text-zinc-200">
                   <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
                   <span className="font-bold">
-                    {verifyStep === 1 && 'التحقق من كود التفعيل المعتمد...'}
+                    {verifyStep === 1 && 'التحقق من معرف الحساب (ID)...'}
                     {verifyStep === 2 && `المزامنة مع سيرفر Khloud bet و ${platform.name}...`}
                     {verifyStep === 3 && 'فتح لعبة التفاحة بنجاح...'}
                   </span>
